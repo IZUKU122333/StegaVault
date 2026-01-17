@@ -9,6 +9,10 @@ const App = () => {
     const [imageLoaded, setImageLoaded] = useState(false);
     const canvasRef = useRef(null);
 
+    // --- THE SECRET SIGNATURE ---
+    // This acts like a header so we know if the image is actually hacked.
+    const SIGNATURE = "ROBO_SECURE::"; 
+
     const goHome = () => {
         setScreen('home');
         setImageLoaded(false);
@@ -35,7 +39,7 @@ const App = () => {
         reader.readAsDataURL(file);
     };
 
-    // --- ENCRYPTION LOGIC ---
+    // --- ENCRYPTION LOGIC (UPDATED) ---
     const handleHack = () => {
         if (!imageLoaded || !message) return alert("SYSTEM ERROR: Missing Input");
 
@@ -44,11 +48,14 @@ const App = () => {
         const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
         const data = imgData.data;
 
+        // 1. Add the Signature BEFORE the message
+        const fullPayload = SIGNATURE + message;
+
         let binary = "";
-        for (let i = 0; i < message.length; i++) {
-            binary += message.charCodeAt(i).toString(2).padStart(8, '0');
+        for (let i = 0; i < fullPayload.length; i++) {
+            binary += fullPayload.charCodeAt(i).toString(2).padStart(8, '0');
         }
-        binary += "00000000"; 
+        binary += "00000000"; // Terminator
 
         if (binary.length > data.length / 4) return alert("OVERFLOW: Text too long");
 
@@ -66,7 +73,7 @@ const App = () => {
             title: "INJECTION COMPLETE",
             body: (
                 <div style={{textAlign:'center'}}>
-                    <p>Payload successfully embedded in image matrix.</p>
+                    <p>Payload embedded with security signature.</p>
                     <a 
                         href={canvas.toDataURL()} 
                         download="hacked_image.png"
@@ -81,7 +88,7 @@ const App = () => {
         setModalOpen(true);
     };
 
-    // --- DECRYPTION LOGIC ---
+    // --- DECRYPTION LOGIC (UPDATED) ---
     const handleRestore = () => {
         if (!imageLoaded) return alert("SYSTEM ERROR: No Image");
         const ctx = canvasRef.current.getContext('2d');
@@ -89,46 +96,68 @@ const App = () => {
         let binary = "";
         let decodedText = "";
 
+        // Read Bits
         for (let i = 0; i < data.length; i += 4) {
             binary += (data[i + 2] % 2);
         }
 
+        // Convert to Text
         for (let i = 0; i < binary.length; i += 8) {
             const byte = binary.slice(i, i + 8);
             if (byte === "00000000") break;
             decodedText += String.fromCharCode(parseInt(byte, 2));
         }
 
-        setModalContent({
-            title: "DATA RETRIEVED",
-            body: (
+        // 2. CHECK FOR SIGNATURE
+        // If the text does NOT start with "ROBO_SECURE::", it's just noise.
+        let resultBody;
+
+        if (decodedText.startsWith(SIGNATURE)) {
+            // Success: Remove the signature and show the message
+            const realMessage = decodedText.replace(SIGNATURE, "");
+            resultBody = (
                 <div>
-                    <p style={{color:'gray'}}>Decrypted Payload:</p>
+                    <p style={{color:'lime'}}>// SIGNATURE MATCHED</p>
                     <div style={{
                         border:'1px solid lime', 
                         padding:'10px', 
-                        color:'lime', 
-                        background:'black',
+                        color:'white', 
+                        background:'#002200',
                         fontSize:'1.1rem',
                         wordBreak: 'break-all',
                         fontFamily: 'Courier New'
                     }}>
-                        {decodedText}
+                        {realMessage}
                     </div>
                 </div>
-            )
+            );
+        } else {
+            // Failure: It's just a normal image
+            resultBody = (
+                <div style={{textAlign: 'center'}}>
+                    <p style={{color:'red', fontWeight:'bold', fontSize:'1.2rem'}}>
+                        // NO DATA DETECTED
+                    </p>
+                    <p style={{color:'#888', fontSize:'0.9rem'}}>
+                        This image appears clean. No hidden payload found.
+                    </p>
+                </div>
+            );
+        }
+
+        setModalContent({
+            title: "SCAN COMPLETE",
+            body: resultBody
         });
         setModalOpen(true);
     };
 
     return (
         <div className="container">
-            {/* SCREEN 1: HOME */}
             {screen === 'home' && (
                 <div className="home-screen">
-                    <h1 className="title-glitch">STEGA_VAULT v3.0</h1>
+                    <h1 className="title-glitch">STEGA_VAULT v4.0</h1>
                     <div className="button-group">
-                        {/* UPDATED BUTTON NAMES */}
                         <button className="robo-btn" onClick={() => setScreen('encode')}>
                             INJECT PAYLOAD
                         </button>
@@ -139,7 +168,6 @@ const App = () => {
                 </div>
             )}
 
-            {/* SCREEN 2: INJECT WORKSPACE */}
             {screen === 'encode' && (
                 <div className="workspace">
                     <button className="back-btn" onClick={goHome}>&lt; ABORT MISSION</button>
@@ -162,7 +190,6 @@ const App = () => {
                 </div>
             )}
 
-            {/* SCREEN 3: EXTRACT WORKSPACE */}
             {screen === 'decode' && (
                 <div className="workspace" style={{borderColor:'var(--secondary)'}}>
                     <button className="back-btn" onClick={goHome}>&lt; ABORT MISSION</button>
@@ -179,7 +206,6 @@ const App = () => {
 
             <canvas ref={canvasRef} style={{ display: 'none' }} />
 
-            {/* MODAL */}
             {modalOpen && (
                 <div className="modal-overlay">
                     <div className="modal-window">
