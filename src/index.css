@@ -1,14 +1,14 @@
-/* CYBER-ROBOTIC THEME - RESPONSIVE v3.0 */
+/* STEGAVAULT MOBILE OPTIMIZED v4.0 */
 :root {
-    --primary: #00f3ff; /* Cyan Neon */
-    --secondary: #ff0055; /* Alert Red */
+    --primary: #00f3ff;
+    --secondary: #ff0055;
     --bg-dark: #050a10;
-    --panel-bg: rgba(10, 20, 30, 0.95); /* Slightly more opaque for mobile readablity */
-    --grid-color: rgba(0, 243, 255, 0.1);
+    --panel-bg: rgba(10, 20, 30, 0.95);
 }
 
+/* 1. Global Reset for Mobile */
 * {
-    box-sizing: border-box; /* Critical for mobile sizing */
+    box-sizing: border-box; /* Essential for padding calculation */
 }
 
 body {
@@ -16,20 +16,151 @@ body {
     color: var(--primary);
     font-family: 'Courier New', Courier, monospace;
     margin: 0;
+    padding: 0;
     min-height: 100vh;
-    overflow-x: hidden; /* Prevent horizontal scroll */
     display: flex;
     justify-content: center;
     align-items: center;
-    padding: 10px; /* Safety padding for small screens */
+    overflow-x: hidden; /* Stops side-scrolling */
 }
 
-/* Moving Background Grid */
+/* 2. Container fits the screen width minus padding */
+.container {
+    width: 100%;
+    max-width: 800px; /* Desktop limit */
+    padding: 15px;    /* Mobile padding */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+/* 3. Responsive Title */
+.title-glitch {
+    font-size: 8vw; /* Text scales with screen width */
+    max-font-size: 3rem;
+    text-shadow: 2px 2px var(--secondary);
+    background: black;
+    padding: 10px;
+    border: 1px solid var(--primary);
+    margin-bottom: 30px;
+    text-align: center;
+    width: 100%;
+}
+
+/* 4. Button Group Stacking */
+.button-group {
+    display: flex;
+    flex-direction: column; /* Stack buttons vertically on mobile */
+    gap: 15px;
+    width: 100%;
+}
+
+@media (min-width: 600px) {
+    .button-group {
+        flex-direction: row; /* Side by side on Desktop */
+    }
+    .title-glitch {
+        font-size: 3rem;
+    }
+}
+
+/* 5. Mobile-Friendly Buttons */
+.robo-btn {
+    background: linear-gradient(45deg, transparent 5%, var(--primary) 5%);
+    color: black;
+    border: none;
+    padding: 15px;
+    font-size: 1rem;
+    font-weight: 900;
+    letter-spacing: 1px;
+    cursor: pointer;
+    text-transform: uppercase;
+    box-shadow: 0 0 10px var(--primary);
+    width: 100%; /* Full width on phone */
+    text-align: center;
+    text-decoration: none;
+    display: block;
+}
+
+.robo-btn.danger {
+    background: linear-gradient(45deg, transparent 5%, var(--secondary) 5%);
+    box-shadow: 0 0 10px var(--secondary);
+    color: white;
+}
+
+/* 6. Workspace Panel */
+.workspace {
+    width: 100%;
+    background: var(--panel-bg);
+    border: 1px solid var(--primary);
+    padding: 15px;
+    position: relative;
+    box-shadow: 0 0 15px rgba(0, 243, 255, 0.2);
+}
+
+.back-btn {
+    width: 100%;
+    margin-bottom: 15px;
+    background: transparent;
+    border: 1px solid var(--secondary);
+    color: var(--secondary);
+    padding: 10px;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+/* 7. Inputs that don't overflow */
+input, textarea {
+    width: 100%;
+    background: rgba(0,0,0,0.8);
+    border: 1px solid var(--primary);
+    color: white;
+    padding: 12px;
+    margin: 10px 0;
+    font-family: inherit;
+    font-size: 16px; /* Prevents iPhone zoom on focus */
+}
+
+/* 8. Fixed Modal Sizing */
+.modal-overlay {
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0,0,0,0.95);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 999;
+    padding: 20px;
+}
+
+.modal-window {
+    width: 100%;      /* Take full width available */
+    max-width: 500px; /* But don't get too big on desktop */
+    background: black;
+    border: 2px solid var(--primary);
+    padding: 15px;
+    box-shadow: 0 0 30px var(--primary);
+    max-height: 80vh;
+    overflow-y: auto;
+}
+
+.modal-header {
+    background: var(--primary);
+    color: black;
+    padding: 10px;
+    font-weight: bold;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+/* Grid Animation (Background) */
 body::before {
     content: "";
     position: absolute;
-    width: 200%;
-    height: 200%;
+    width: 200vw;
+    height: 200vh;
     top: -50%;
     left: -50%;
     background-image: 
@@ -39,162 +170,9 @@ body::before {
     transform: perspective(500px) rotateX(60deg);
     animation: gridMove 20s linear infinite;
     z-index: -1;
+    pointer-events: none; /* Let touches pass through to buttons */
 }
-
 @keyframes gridMove {
     0% { transform: perspective(500px) rotateX(60deg) translateY(0); }
     100% { transform: perspective(500px) rotateX(60deg) translateY(40px); }
-}
-
-/* MAIN CONTAINER */
-.container {
-    width: 100%;
-    max-width: 800px;
-    z-index: 10;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-}
-
-/* HOME SCREEN LAYOUT */
-.home-screen {
-    width: 100%;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 20px;
-    text-align: center;
-}
-
-.title-glitch {
-    font-size: clamp(1.5rem, 5vw, 3rem); /* Auto-resize text based on screen width */
-    text-shadow: 2px 2px var(--secondary);
-    background: black;
-    padding: 15px 5vw; /* Responsive padding */
-    border: 1px solid var(--primary);
-    margin-bottom: 20px;
-}
-
-.button-group {
-    display: flex;
-    gap: 20px;
-    flex-wrap: wrap; /* Allows buttons to stack on phone */
-    justify-content: center;
-    width: 100%;
-}
-
-/* ROBOTIC BUTTONS */
-.robo-btn {
-    background: linear-gradient(45deg, transparent 5%, var(--primary) 5%);
-    color: black;
-    border: none;
-    padding: 15px 30px;
-    font-size: 1rem;
-    font-weight: 900;
-    letter-spacing: 2px;
-    cursor: pointer;
-    clip-path: polygon(10% 0, 100% 0, 100% 70%, 90% 100%, 0 100%, 0 30%);
-    transition: all 0.2s ease;
-    text-transform: uppercase;
-    box-shadow: 0 0 10px var(--primary);
-    min-width: 200px; /* Ensure buttons have a good size on mobile */
-    text-align: center;
-    text-decoration: none; /* For download links */
-    display: inline-block;
-}
-
-.robo-btn:active {
-    transform: scale(0.95);
-}
-
-.robo-btn.danger {
-    background: linear-gradient(45deg, transparent 5%, var(--secondary) 5%);
-    box-shadow: 0 0 10px var(--secondary);
-    color: white;
-}
-
-/* WORKSPACE PANELS */
-.workspace {
-    width: 100%;
-    background: var(--panel-bg);
-    border: 1px solid var(--primary);
-    padding: 20px;
-    position: relative;
-    /* Simplified clip-path for mobile to save space */
-    clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%); 
-    box-shadow: 0 0 20px rgba(0, 243, 255, 0.2);
-}
-
-/* On larger screens, add the fancy corners back */
-@media (min-width: 600px) {
-    .workspace {
-        padding: 40px;
-        clip-path: polygon(5% 0, 100% 0, 100% 95%, 95% 100%, 0 100%, 0 5%);
-    }
-}
-
-.back-btn {
-    display: block;
-    width: 100%;
-    margin-bottom: 20px;
-    background: transparent;
-    border: 1px solid var(--secondary);
-    color: var(--secondary);
-    padding: 10px;
-    cursor: pointer;
-    font-weight: bold;
-    text-transform: uppercase;
-}
-
-/* INPUT FIELDS */
-input, textarea {
-    width: 100%; /* Full width on mobile */
-    background: rgba(0,0,0,0.8);
-    border: 1px solid var(--primary);
-    color: white;
-    padding: 15px;
-    margin: 10px 0;
-    font-family: 'Courier New', Courier, monospace;
-    font-size: 1rem;
-}
-input[type="file"] {
-    font-size: 0.8rem; /* Smaller font for file picker on mobile */
-}
-
-/* POPUP MODAL */
-.modal-overlay {
-    position: fixed;
-    top: 0; left: 0; width: 100%; height: 100%;
-    background: rgba(0,0,0,0.9);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 100;
-    padding: 20px; /* Prevent touching edges on phone */
-}
-.modal-window {
-    width: 100%;
-    max-width: 500px;
-    background: black;
-    border: 2px solid var(--primary);
-    padding: 20px;
-    box-shadow: 0 0 30px var(--primary);
-    max-height: 90vh; /* Allow scrolling if content is long */
-    overflow-y: auto;
-}
-.modal-header {
-    background: var(--primary);
-    color: black;
-    padding: 10px;
-    font-weight: bold;
-    display: flex;
-    justify-content: space-between;
-    margin-bottom: 20px;
-    align-items: center;
-}
-.close-x { 
-    cursor: pointer; 
-    font-weight: 900; 
-    font-size: 1.5rem; 
-    padding: 0 10px;
 }
